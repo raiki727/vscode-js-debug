@@ -85,6 +85,40 @@ describe('variables', () => {
         new Bar();`);
       p.assertLog();
     });
+
+    itIntegrates('customDescriptionGenerator', async ({ r }) => {
+      const p = await r.launchAndLoad('blank', {
+        customDescriptionGenerator:
+          'function (def) { if (this.customDescription) return this.customDescription(); else return def }',
+      });
+      await p.logger.evaluateAndLog(`
+        class Foo { get getter() {} }
+        class Bar extends Foo { customDescription() { return 'Instance of bar'} }
+        new Bar();`);
+      p.assertLog();
+    });
+
+    itIntegrates.only('customDebuggerProperties', async ({ r }) => {
+      const p = await r.launchAndLoad('blank', {
+        customDebuggerProperties:
+          'function () { if (this.customDebuggerProperties) return this.customDebuggerProperties(); else return this; }',
+      });
+      await p.logger.evaluateAndLog(`
+        class Foo { get getter() {} }
+        class Bar extends Foo {
+          constructor() {
+            super();
+            this.realProp = 'cc3';
+          }
+
+          customDebuggerProperties() {
+            const properties = Object.create(this.__proto__);
+            return Object.assign(properties, this, { customProp1: 'aa1', customProp2: 'bb2' });
+          }
+        }
+        new Bar();`);
+      p.assertLog();
+    });
   });
 
   describe('web', () => {

@@ -106,6 +106,7 @@ export class VariableStore {
     cdp: Cdp.Api,
     delegate: IVariableStoreDelegate,
     private readonly autoExpandGetters: boolean,
+    private readonly customDebuggerProperties: string | undefined,
   ) {
     this._cdp = cdp;
     this._delegate = delegate;
@@ -345,6 +346,31 @@ export class VariableStore {
     object: RemoteObject,
     objectId = object.objectId,
   ): Promise<Dap.Variable[]> {
+    if (this.customDebuggerProperties) {
+      const customValueDescription = await this._cdp.Runtime.callFunctionOn({
+        objectId: object.objectId,
+        functionDeclaration: this.customDebuggerProperties,
+      });
+
+      if (customValueDescription) {
+        if (!customValueDescription.exceptionDetails) {
+          if (customValueDescription.result.type !== 'undefined') {
+            object = new RemoteObject(
+              object.name,
+              object.cdp,
+              customValueDescription.result,
+              object.parent,
+            );
+            objectId = object.objectId;
+          }
+        } else {
+          if (customValueDescription.result.description) {
+            // await this._delegate.reportError(localize('error.cantCustomizeObjectProperties', 'Couldn\'t customize object properties: {0}', customValueDescription.result.description));
+          }
+        }
+      }
+    }
+
     const [accessorsProperties, ownProperties] = await Promise.all([
       object.cdp.Runtime.getProperties({
         objectId,

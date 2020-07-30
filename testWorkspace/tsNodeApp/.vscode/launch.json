@@ -15,7 +15,13 @@
             "program": "${workspaceFolder}\\app.ts",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
+<<<<<<< Updated upstream
             ]
+=======
+            ],
+            "customDescriptionGenerator": "function (defaultValue) { return global.customDebuggerDescription(this, defaultValue); }",
+            "customDebuggerProperties": "function () { return customDebuggerProperties(this); }",
+>>>>>>> Stashed changes
         }
     ]
 }
