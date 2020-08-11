@@ -13,6 +13,7 @@ import { NodeBinaryProvider } from '../targets/node/nodeBinaryProvider';
 import { launchVirtualTerminalParent } from './debugTerminalUI';
 import { DelegateLauncherFactory } from '../targets/delegate/delegateLauncherFactory';
 import { ProxyLogger } from '../common/logging/proxyLogger';
+import { FsUtils } from '../common/fsUtils';
 
 const localize = nls.loadMessageBundle();
 
@@ -30,7 +31,14 @@ export function registerAutoAttach(
 
     launcher = (async () => {
       const logger = new ProxyLogger();
-      const inst = new AutoAttachLauncher(new NodeBinaryProvider(logger, fs), logger, context, fs);
+      // TODO: Figure out how to inject FsUtils
+      const inst = new AutoAttachLauncher(
+        new NodeBinaryProvider(logger, fs),
+        logger,
+        context,
+        fs,
+        new FsUtils(fs),
+      );
       await launchVirtualTerminalParent(delegate, inst);
 
       inst.onTargetListChanged(() => {

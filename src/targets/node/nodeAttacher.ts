@@ -2,7 +2,7 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import * as nls from 'vscode-nls';
 import Cdp from '../../cdp/api';
 import { CancellationTokenSource } from '../../common/cancellation';
@@ -16,11 +16,13 @@ import { IStopMetadata } from '../targets';
 import { LeaseFile } from './lease-file';
 import { NodeAttacherBase } from './nodeAttacherBase';
 import { watchAllChildren } from './nodeAttacherCluster';
-import { NodeBinary, NodeBinaryProvider } from './nodeBinaryProvider';
+import { NodeBinary, NodeBinaryProvider, INodeBinaryProvider } from './nodeBinaryProvider';
 import { IRunData } from './nodeLauncherBase';
 import { IProgram, StubProgram, WatchDogProgram } from './program';
 import { IRestartPolicy, RestartPolicyFactory } from './restartPolicy';
 import { WatchDog } from './watchdogSpawn';
+import { FsUtils } from '../../common/fsUtils';
+import { FSUtils } from '../../ioc-extras';
 
 const localize = nls.loadMessageBundle();
 
@@ -34,11 +36,12 @@ const localize = nls.loadMessageBundle();
 @injectable()
 export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
   constructor(
-    pathProvider: NodeBinaryProvider,
-    logger: ILogger,
+    @inject(FSUtils) fsUtils: FsUtils,
+    @inject(INodeBinaryProvider) pathProvider: NodeBinaryProvider,
+    @inject(ILogger) logger: ILogger,
     private readonly restarters = new RestartPolicyFactory(),
   ) {
-    super(pathProvider, logger);
+    super(pathProvider, logger, fsUtils);
   }
 
   /**

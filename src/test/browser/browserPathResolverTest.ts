@@ -2,12 +2,12 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import * as fs from 'fs';
+import { promises as fsPromises, PathLike } from 'fs';
 import * as path from 'path';
 import { stub, SinonStub } from 'sinon';
 import { expect } from 'chai';
 import { BrowserSourcePathResolver } from '../../targets/browser/browserPathResolver';
-import { fsModule } from '../../common/fsUtils';
+import { fsModule, FsUtils } from '../../common/fsUtils';
 import { defaultSourceMapPathOverrides } from '../../configuration';
 import { Logger } from '../../common/logging/logger';
 import { testFixturesDir } from '../test';
@@ -16,7 +16,7 @@ import { ISourceMapMetadata, SourceMap } from '../../common/sourceMaps/sourceMap
 import { FileGlobList } from '../../common/fileGlobList';
 
 describe('browserPathResolver.urlToAbsolutePath', () => {
-  let fsExistStub: SinonStub<[fs.PathLike, (cb: boolean) => void], void>;
+  let fsExistStub: SinonStub<[PathLike, (cb: boolean) => void], void>;
   const testVueMapper: IVueFileMapper = {
     lookup: async url => path.join(testFixturesDir, 'web', 'looked up', url),
     getVueHandling: url =>
@@ -43,6 +43,7 @@ describe('browserPathResolver.urlToAbsolutePath', () => {
   describe('vue', () => {
     const resolver = new BrowserSourcePathResolver(
       testVueMapper,
+      new FsUtils(fsPromises),
       {
         pathMapping: { '/': path.join(testFixturesDir, 'web') },
         clientID: 'vscode',
@@ -130,6 +131,7 @@ describe('browserPathResolver.urlToAbsolutePath', () => {
   describe('absolutePathToUrl', () => {
     const resolver = new BrowserSourcePathResolver(
       testVueMapper,
+      new FsUtils(fsPromises),
       {
         pathMapping: {
           '/': path.join(testFixturesDir, 'web'),
@@ -170,6 +172,7 @@ describe('browserPathResolver.urlToAbsolutePath', () => {
 
       const resolver = new BrowserSourcePathResolver(
         testVueMapper,
+        new FsUtils(fsPromises),
         {
           pathMapping: { '/': webRoot },
           clientID: client,

@@ -4,7 +4,8 @@
 
 import * as fs from 'fs';
 import * as util from 'util';
-import { FsPromises } from '../ioc-extras';
+import { FsPromises, FS } from '../ioc-extras';
+import { inject } from 'inversify';
 
 export const fsModule = fs;
 
@@ -87,8 +88,16 @@ export function readFileRaw(path: string): Promise<Buffer> {
   return fs.promises.readFile(path).catch(() => Buffer.alloc(0));
 }
 
-export function exists(path: string): Promise<boolean> {
-  return new Promise(cb => {
-    fs.exists(path, cb);
-  });
+export class FsUtils {
+  public constructor(@inject(FS) private readonly fs: FsPromises) {}
+
+  public async exists(path: string): Promise<boolean> {
+    // Check if the file exists in the current directory.
+    try {
+      await this.fs.access(path, fs.constants.F_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

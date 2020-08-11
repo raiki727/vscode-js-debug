@@ -9,7 +9,7 @@ import { Configuration, DebugType, readConfig } from '../../common/contributionU
 import { ILogger } from '../../common/logging';
 import { forceForwardSlashes } from '../../common/pathUtils';
 import { AnyLaunchConfiguration, ITerminalLaunchConfiguration } from '../../configuration';
-import { ExtensionContext, FS, FsPromises } from '../../ioc-extras';
+import { ExtensionContext, FS, FsPromises, FSUtils } from '../../ioc-extras';
 import { ITarget } from '../targets';
 import {
   BootloaderEnvironment,
@@ -27,6 +27,7 @@ import { IProcessTelemetry, IRunData, NodeLauncherBase } from './nodeLauncherBas
 import { StubProgram } from './program';
 import { ITerminalLauncherLike } from './terminalNodeLauncher';
 import { bootloaderDefaultPath, WatchDog } from './watchdogSpawn';
+import { FsUtils } from '../../common/fsUtils';
 
 /**
  * A special launcher whose launchProgram is a no-op. Used in attach attachment
@@ -42,8 +43,9 @@ export class AutoAttachLauncher extends NodeLauncherBase<ITerminalLaunchConfigur
     @inject(ILogger) logger: ILogger,
     @inject(ExtensionContext) private readonly extensionContext: vscode.ExtensionContext,
     @inject(FS) private readonly fs: FsPromises,
+    @inject(FSUtils) fsUtils: FsUtils,
   ) {
-    super(pathProvider, logger);
+    super(pathProvider, logger, fsUtils);
   }
 
   /**

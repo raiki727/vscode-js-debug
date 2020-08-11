@@ -13,12 +13,6 @@ import {
   EdgeBrowserFinder,
 } from 'vscode-js-debug-browsers';
 import { BreakpointsPredictor, IBreakpointsPredictor } from './adapter/breakpointPredictor';
-import { BreakpointManager } from './adapter/breakpoints';
-import {
-  BreakpointConditionFactory,
-  IBreakpointConditionFactory,
-} from './adapter/breakpoints/conditions';
-import { LogPointCompiler } from './adapter/breakpoints/conditions/logPoint';
 import { Completions, ICompletions } from './adapter/completions';
 import { IConsole } from './adapter/console';
 import { Console } from './adapter/console/console';
@@ -26,18 +20,10 @@ import { Evaluator, IEvaluator } from './adapter/evaluator';
 import { IProfileController, ProfileController } from './adapter/profileController';
 import { IProfilerFactory, ProfilerFactory } from './adapter/profiling';
 import { BasicCpuProfiler } from './adapter/profiling/basicCpuProfiler';
-import { IResourceProvider } from './adapter/resourceProvider';
-import { ResourceProviderState } from './adapter/resourceProvider/resourceProviderState';
-import { StatefulResourceProvider } from './adapter/resourceProvider/statefulResourceProvider';
 import { ScriptSkipper } from './adapter/scriptSkipper/implementation';
-import { IScriptSkipper } from './adapter/scriptSkipper/scriptSkipper';
 import { SourceContainer } from './adapter/sources';
-import { IVueFileMapper, VueFileMapper } from './adapter/vueFileMapper';
 import Cdp from './cdp/api';
 import { ICdpApi } from './cdp/connection';
-import { ObservableMap } from './common/datastructure/observableMap';
-import { DefaultBrowserProvider, IDefaultBrowserProvider } from './common/defaultBrowserProvider';
-import { OutFiles, VueComponentPaths } from './common/fileGlobList';
 import { ILogger } from './common/logging';
 import { Logger } from './common/logging/logger';
 import { CodeSearchStrategy } from './common/sourceMaps/codeSearchStrategy';
@@ -60,6 +46,7 @@ import {
   StoragePath,
   trackDispose,
   VSCodeApi,
+  FSUtils,
 } from './ioc-extras';
 import { BrowserAttacher } from './targets/browser/browserAttacher';
 import { ChromeLauncher } from './targets/browser/chromeLauncher';
@@ -67,7 +54,6 @@ import { EdgeLauncher } from './targets/browser/edgeLauncher';
 import { RemoteBrowserAttacher } from './targets/browser/remoteBrowserAttacher';
 import { RemoteBrowserHelper } from './targets/browser/remoteBrowserHelper';
 import { RemoteBrowserLauncher } from './targets/browser/remoteBrowserLauncher';
-import { VSCodeRendererAttacher } from './targets/browser/vscodeRendererAttacher';
 import { DelegateLauncherFactory } from './targets/delegate/delegateLauncherFactory';
 import { ExtensionHostAttacher } from './targets/node/extensionHostAttacher';
 import { ExtensionHostLauncher } from './targets/node/extensionHostLauncher';
@@ -85,6 +71,22 @@ import { ILauncher, ITarget } from './targets/targets';
 import { DapTelemetryReporter } from './telemetry/dapTelemetryReporter';
 import { NullTelemetryReporter } from './telemetry/nullTelemetryReporter';
 import { ITelemetryReporter } from './telemetry/telemetryReporter';
+import { IScriptSkipper } from './adapter/scriptSkipper/scriptSkipper';
+import { IDefaultBrowserProvider, DefaultBrowserProvider } from './common/defaultBrowserProvider';
+import { ResourceProviderState } from './adapter/resourceProvider/resourceProviderState';
+import { StatefulResourceProvider } from './adapter/resourceProvider/statefulResourceProvider';
+import { IResourceProvider } from './adapter/resourceProvider';
+import { BreakpointManager } from './adapter/breakpoints';
+import { ObservableMap } from './common/datastructure/observableMap';
+import {
+  IBreakpointConditionFactory,
+  BreakpointConditionFactory,
+} from './adapter/breakpoints/conditions';
+import { LogPointCompiler } from './adapter/breakpoints/conditions/logPoint';
+import { OutFiles, VueComponentPaths } from './common/fileGlobList';
+import { IVueFileMapper, VueFileMapper } from './adapter/vueFileMapper';
+import { VSCodeRendererAttacher } from './targets/browser/vscodeRendererAttacher';
+import { FsUtils } from './common/fsUtils';
 
 /**
  * Contains IOC container factories for the extension. We use Inverisfy, which
@@ -256,6 +258,7 @@ export const createGlobalContainer = (options: {
   container.bind(ProcessEnv).toConstantValue(process.env);
   container.bind(Execa).toConstantValue(execa);
   container.bind(FS).toConstantValue(fsPromises);
+  container.bind(FSUtils).toConstantValue(new FsUtils(fsPromises));
   container
     .bind<ExtensionLocation>(ExtensionLocation)
     .toConstantValue(options.isRemote ? 'remote' : 'local');
