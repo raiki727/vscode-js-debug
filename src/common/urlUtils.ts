@@ -11,7 +11,7 @@ import { BrowserTargetType } from '../targets/browser/browserTargets';
 import { memoize } from './objUtils';
 import { fixDriveLetterAndSlashes, forceForwardSlashes } from './pathUtils';
 import { escapeRegexSpecialChars, isRegexSpecialChar } from './stringUtils';
-import { FsUtils } from './fsUtils';
+import { LocalFsUtils } from './fsUtils';
 
 let isCaseSensitive = process.platform !== 'win32';
 
@@ -76,7 +76,7 @@ export const nearestDirectoryWhere = async (
 /**
  * Returns the closest parent directory that contains a file with the given name.
  */
-export const nearestDirectoryContaining = (fsUtils: FsUtils, rootDir: string, file: string) =>
+export const nearestDirectoryContaining = (fsUtils: LocalFsUtils, rootDir: string, file: string) =>
   nearestDirectoryWhere(rootDir, p => fsUtils.exists(path.join(p, file)));
 
 // todo: not super correct, and most node libraries don't handle this accurately

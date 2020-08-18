@@ -86,7 +86,7 @@ import { LogPointCompiler } from './adapter/breakpoints/conditions/logPoint';
 import { OutFiles, VueComponentPaths } from './common/fileGlobList';
 import { IVueFileMapper, VueFileMapper } from './adapter/vueFileMapper';
 import { VSCodeRendererAttacher } from './targets/browser/vscodeRendererAttacher';
-import { FsUtils } from './common/fsUtils';
+import { LocalAndRemoteFsUtils } from './common/fsUtils';
 
 /**
  * Contains IOC container factories for the extension. We use Inverisfy, which
@@ -112,6 +112,7 @@ export const createTargetContainer = (
   target: ITarget,
   dap: Dap.Api,
   cdp: Cdp.Api,
+  launchParams: AnyLaunchConfiguration,
 ) => {
   const container = new Container();
   container.parent = parent;
@@ -143,6 +144,11 @@ export const createTargetContainer = (
   container.bind(BasicCpuProfiler).toSelf();
   container.bind(IProfilerFactory).to(ProfilerFactory).inSingletonScope();
   container.bind(IProfileController).to(ProfileController).inSingletonScope();
+  container
+    .bind(FSUtils)
+    .toConstantValue(
+      LocalAndRemoteFsUtils.create(launchParams.__remoteFilePrefix, fsPromises, dap),
+    );
 
   return container;
 };
@@ -258,7 +264,6 @@ export const createGlobalContainer = (options: {
   container.bind(ProcessEnv).toConstantValue(process.env);
   container.bind(Execa).toConstantValue(execa);
   container.bind(FS).toConstantValue(fsPromises);
-  container.bind(FSUtils).toConstantValue(new FsUtils(fsPromises));
   container
     .bind<ExtensionLocation>(ExtensionLocation)
     .toConstantValue(options.isRemote ? 'remote' : 'local');

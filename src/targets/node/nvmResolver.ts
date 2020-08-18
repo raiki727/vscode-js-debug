@@ -8,7 +8,7 @@ import { nvmHomeNotFound, nvmNotFound, nvmVersionNotFound, nvsNotFound } from '.
 import { ProtocolError } from '../../dap/protocolError';
 import { injectable, inject } from 'inversify';
 import { some } from '../../common/promiseUtil';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 import { FSUtils } from '../../ioc-extras';
 
 /**
@@ -40,7 +40,7 @@ const enum Vars {
 @injectable()
 export class NvmResolver implements INvmResolver {
   constructor(
-    @inject(FSUtils) private readonly fsUtils: FsUtils,
+    @inject(FSUtils) private readonly fsUtils: LocalFsUtils,
     private readonly env = process.env,
     private readonly arch = process.arch,
     private readonly platform = process.platform,

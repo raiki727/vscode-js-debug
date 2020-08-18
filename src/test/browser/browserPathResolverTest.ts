@@ -7,7 +7,7 @@ import * as path from 'path';
 import { stub, SinonStub } from 'sinon';
 import { expect } from 'chai';
 import { BrowserSourcePathResolver } from '../../targets/browser/browserPathResolver';
-import { fsModule, FsUtils } from '../../common/fsUtils';
+import { fsModule, LocalFsUtils } from '../../common/fsUtils';
 import { defaultSourceMapPathOverrides } from '../../configuration';
 import { Logger } from '../../common/logging/logger';
 import { testFixturesDir } from '../test';
@@ -43,7 +43,7 @@ describe('browserPathResolver.urlToAbsolutePath', () => {
   describe('vue', () => {
     const resolver = new BrowserSourcePathResolver(
       testVueMapper,
-      new FsUtils(fsPromises),
+      new LocalFsUtils(fsPromises),
       {
         pathMapping: { '/': path.join(testFixturesDir, 'web') },
         clientID: 'vscode',
@@ -131,7 +131,7 @@ describe('browserPathResolver.urlToAbsolutePath', () => {
   describe('absolutePathToUrl', () => {
     const resolver = new BrowserSourcePathResolver(
       testVueMapper,
-      new FsUtils(fsPromises),
+      new LocalFsUtils(fsPromises),
       {
         pathMapping: {
           '/': path.join(testFixturesDir, 'web'),
@@ -172,7 +172,7 @@ describe('browserPathResolver.urlToAbsolutePath', () => {
 
       const resolver = new BrowserSourcePathResolver(
         testVueMapper,
-        new FsUtils(fsPromises),
+        new LocalFsUtils(fsPromises),
         {
           pathMapping: { '/': webRoot },
           clientID: client,

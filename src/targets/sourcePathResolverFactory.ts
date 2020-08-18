@@ -11,8 +11,8 @@ import Dap from '../dap/api';
 import { baseURL } from './browser/browserLaunchParams';
 import { BrowserSourcePathResolver } from './browser/browserPathResolver';
 import { IInitializeParams, FSUtils } from '../ioc-extras';
-import { FsUtils } from '../common/fsUtils';
 import { NodeSourcePathResolver } from './node/nodeSourcePathResolver';
+import { LocalFsUtils } from '../common/fsUtils';
 
 @injectable()
 export class SourcePathResolverFactory {
@@ -20,8 +20,8 @@ export class SourcePathResolverFactory {
     @inject(IInitializeParams) private readonly initializeParams: Dap.InitializeParams,
     @inject(ILogger) private readonly logger: ILogger,
     @inject(IVueFileMapper) private readonly vueMapper: IVueFileMapper,
-    @inject(FSUtils) private readonly fsUtils: FsUtils,
-  ) { }
+    @inject(FSUtils) private readonly fsUtils: LocalFsUtils,
+  ) {}
 
   public create(c: AnyLaunchConfiguration) {
     if (

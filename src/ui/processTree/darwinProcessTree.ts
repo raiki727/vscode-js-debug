@@ -6,10 +6,10 @@ import { IProcess } from './processTree';
 import { BaseProcessTree } from './baseProcessTree';
 import { spawnAsync, ChildProcessError } from '../../common/processUtils';
 import { isAbsolute } from 'path';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 
 export class DarwinProcessTree extends BaseProcessTree {
-  public constructor(private readonly fsUtils: FsUtils) {
+  public constructor(private readonly fsUtils: LocalFsUtils) {
     super();
   }
 

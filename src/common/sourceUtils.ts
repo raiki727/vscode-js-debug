@@ -9,7 +9,7 @@ import { SourceMap } from './sourceMaps/sourceMap';
 import { verifyBytes, verifyFile } from './hash';
 import { LineColumn } from '../adapter/breakpoints/breakpointBase';
 import { promises as fsPromises } from 'fs';
-import { FsUtils } from './fsUtils';
+import { LocalFsUtils } from './fsUtils';
 
 export async function prettyPrintAsSourceMap(
   fileName: string,
@@ -257,7 +257,7 @@ export async function checkContentHash(
   contentOverride?: string,
 ): Promise<string | undefined> {
   if (!contentHash) {
-    const exists = await new FsUtils(fsPromises).exists(absolutePath);
+    const exists = await new LocalFsUtils(fsPromises).exists(absolutePath);
     return exists ? absolutePath : undefined;
   }
   const result =

@@ -26,7 +26,7 @@ import { DapTelemetryReporter } from '../telemetry/dapTelemetryReporter';
 import { TerminalLinkHandler } from './terminalLinkHandler';
 import { promises as fs } from 'fs';
 import { ProxyLogger } from '../common/logging/proxyLogger';
-import { FsUtils } from '../common/fsUtils';
+import { LocalFsUtils } from '../common/fsUtils';
 
 export const launchVirtualTerminalParent = (
   delegate: DelegateLauncherFactory,
@@ -132,7 +132,7 @@ export function registerDebugTerminalUI(
   context: vscode.ExtensionContext,
   delegateFactory: DelegateLauncherFactory,
   linkHandler: TerminalLinkHandler,
-  fsUtils: FsUtils,
+  fsUtils: LocalFsUtils,
 ) {
   /**
    * See docblocks on {@link DelegateLauncher} for more information on
@@ -145,7 +145,12 @@ export function registerDebugTerminalUI(
     defaultConfig?: Partial<ITerminalLaunchConfiguration>,
   ) {
     const logger = new ProxyLogger();
-    const launcher = new TerminalNodeLauncher(new NodeBinaryProvider(logger, fs), logger, fs, fsUtils);
+    const launcher = new TerminalNodeLauncher(
+      new NodeBinaryProvider(logger, fs),
+      logger,
+      fs,
+      fsUtils,
+    );
     launcher.onTerminalCreated(terminal => {
       linkHandler.enableHandlingInTerminal(terminal);
     });

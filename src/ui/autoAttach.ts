@@ -13,7 +13,7 @@ import { NodeBinaryProvider } from '../targets/node/nodeBinaryProvider';
 import { launchVirtualTerminalParent } from './debugTerminalUI';
 import { DelegateLauncherFactory } from '../targets/delegate/delegateLauncherFactory';
 import { ProxyLogger } from '../common/logging/proxyLogger';
-import { FsUtils } from '../common/fsUtils';
+import { LocalFsUtils } from '../common/fsUtils';
 
 const localize = nls.loadMessageBundle();
 
@@ -37,7 +37,7 @@ export function registerAutoAttach(
         logger,
         context,
         fs,
-        new FsUtils(fs),
+        new LocalFsUtils(fs),
       );
       await launchVirtualTerminalParent(delegate, inst);
 

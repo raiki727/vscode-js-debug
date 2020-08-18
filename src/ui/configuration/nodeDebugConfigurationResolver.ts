@@ -28,7 +28,7 @@ import { INvmResolver } from '../../targets/node/nvmResolver';
 import { fixInspectFlags } from '../configurationUtils';
 import { resolveProcessId } from '../processPicker';
 import { BaseConfigurationResolver } from './baseConfigurationResolver';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 
 const localize = nls.loadMessageBundle();
 
@@ -46,7 +46,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
   constructor(
     @inject(ExtensionContext) context: vscode.ExtensionContext,
     @inject(INvmResolver) private readonly nvmResolver: INvmResolver,
-    @inject(FsUtils) private readonly fsUtils: FsUtils,
+    @inject(LocalFsUtils) private readonly fsUtils: LocalFsUtils,
   ) {
     super(context);
   }
@@ -204,7 +204,7 @@ function getAbsoluteProgramLocation(folder: vscode.WorkspaceFolder | undefined, 
  * @see https://github.com/microsoft/vscode-js-debug/issues/326
  */
 async function guessOutFiles(
-  fsUtils: FsUtils,
+  fsUtils: LocalFsUtils,
   folder: vscode.WorkspaceFolder | undefined,
   config: ResolvingNodeLaunchConfiguration,
 ) {

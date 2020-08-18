@@ -5,7 +5,7 @@
 import { WindowsProcessTree } from './windowsProcessTree';
 import { DarwinProcessTree } from './darwinProcessTree';
 import { PosixProcessTree } from './posixProcessTree';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 import { promises as fsPromises } from 'fs';
 
 /**
@@ -56,7 +56,7 @@ export interface IProcessTree {
  * The process tree implementation for the current platform.
  */
 // TODO: Figure out how to inject the fsUtils here
-const fsUtils = new FsUtils(fsPromises);
+const fsUtils = new LocalFsUtils(fsPromises);
 export const processTree: IProcessTree =
   process.platform === 'win32'
     ? new WindowsProcessTree()

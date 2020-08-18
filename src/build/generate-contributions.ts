@@ -49,6 +49,7 @@ type OmittedKeysFromAttributes =
   | '__workspaceFolder'
   | '__workspaceCachePath'
   | '__autoExpandGetters'
+  | '__remoteFilePrefix'
   | '__sessionId';
 
 type DescribedAttribute<T> = JSONSchema6 &

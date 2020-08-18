@@ -185,6 +185,11 @@ export interface IBaseConfiguration extends IMandatedConfiguration {
    * Whether getters should be automatically expanded.
    */
   __autoExpandGetters: boolean;
+
+  /**
+   * If a file starts with this prefix, we'll consider it a remote file, and perform it's operation thorugh DAP requests
+   */
+  __remoteFilePrefix: string | undefined;
 }
 
 export interface IExtensionHostBaseConfiguration extends INodeBaseConfiguration {
@@ -767,6 +772,7 @@ export const baseDefaults: IBaseConfiguration = {
   // Should always be determined upstream;
   __workspaceFolder: '',
   __autoExpandGetters: false,
+  __remoteFilePrefix: undefined,
 };
 
 const nodeBaseDefaults: INodeBaseConfiguration = {

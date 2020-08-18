@@ -15,7 +15,7 @@ import { processTree, analyseArguments } from './processTree/processTree';
 import { readConfig, Configuration } from '../common/contributionUtils';
 import { nearestDirectoryContaining } from '../common/urlUtils';
 import { isSubdirectoryOf } from '../common/pathUtils';
-import { FsUtils } from '../common/fsUtils';
+import { LocalFsUtils } from '../common/fsUtils';
 import { promises as fsPromises } from 'fs';
 
 const INSPECTOR_PORT_DEFAULT = 9229;
@@ -48,7 +48,7 @@ export async function attachProcess() {
   };
 
   // TODO: Figure out how to inject FsUtils
-  await resolveProcessId(new FsUtils(fsPromises), config, true);
+  await resolveProcessId(new LocalFsUtils(fsPromises), config, true);
   await vscode.debug.startDebugging(
     config.cwd ? vscode.workspace.getWorkspaceFolder(vscode.Uri.file(config.cwd)) : undefined,
     config,
@@ -61,7 +61,7 @@ export async function attachProcess() {
  * if it was cancelled.
  */
 export async function resolveProcessId(
-  fsUtils: FsUtils,
+  fsUtils: LocalFsUtils,
   config: ResolvingNodeAttachConfiguration,
   setCwd = false,
 ) {
@@ -93,7 +93,7 @@ export async function resolveProcessId(
   }
 }
 
-async function inferWorkingDirectory(fsUtils: FsUtils, processId?: number) {
+async function inferWorkingDirectory(fsUtils: LocalFsUtils, processId?: number) {
   const inferredWd = processId && (await processTree.getWorkingDirectory(processId));
 
   // If we couldn't infer the working directory, just use the first workspace folder

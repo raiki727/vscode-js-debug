@@ -8,9 +8,9 @@ import { join, resolve } from 'path';
 import { setCaseSensitivePaths, resetCaseSensitivePaths } from '../../common/urlUtils';
 import { Logger } from '../../common/logging/logger';
 import { promises as fsPromises } from 'fs';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 
-const fsUtils = new FsUtils(fsPromises);
+const fsUtils = new LocalFsUtils(fsPromises);
 
 describe('node source path resolver', () => {
   describe('url to path', () => {

@@ -8,9 +8,9 @@ import { expect } from 'chai';
 import * as path from 'path';
 import { ProtocolError } from '../../dap/protocolError';
 import { promises as fsPromises } from 'fs';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 
-const fsUtils = new FsUtils(fsPromises);
+const fsUtils = new LocalFsUtils(fsPromises);
 
 describe('runtimeVersion', () => {
   let resolver: INvmResolver;

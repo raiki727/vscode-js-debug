@@ -4,8 +4,8 @@
 
 import * as fs from 'fs';
 import * as util from 'util';
-import { FsPromises, FS } from '../ioc-extras';
-import { inject } from 'inversify';
+import { FsPromises } from '../ioc-extras';
+import Dap from '../dap/api';
 
 export const fsModule = fs;
 
@@ -88,8 +88,12 @@ export function readFileRaw(path: string): Promise<Buffer> {
   return fs.promises.readFile(path).catch(() => Buffer.alloc(0));
 }
 
-export class FsUtils {
-  public constructor(@inject(FS) private readonly fs: FsPromises) {}
+export interface IFsUtils {
+  exists(path: string): Promise<boolean>;
+}
+
+export class LocalFsUtils implements IFsUtils {
+  public constructor(private readonly fs: FsPromises) {}
 
   public async exists(path: string): Promise<boolean> {
     // Check if the file exists in the current directory.
@@ -99,5 +103,61 @@ export class FsUtils {
     } catch {
       return false;
     }
+  }
+}
+
+interface IDapWithCustomRequest {
+  remoteFileExistsRequest(params: { localFilePath: string }): Promise<{ doesExists: boolean }>;
+}
+
+export class RemoteFsThroughDapUtils implements IFsUtils {
+  public constructor(private readonly dap: Dap.Api) {}
+
+  public async exists(path: string): Promise<boolean> {
+    try {
+      // Custom request
+      const { doesExists } = await ((this
+        .dap as unknown) as IDapWithCustomRequest).remoteFileExistsRequest({
+        localFilePath: path,
+      });
+      return doesExists;
+    } catch {
+      return false;
+    }
+  }
+}
+
+/**
+ * Notes: remoteFilePrefix = '' // will do all fs operations thorugh DAP requests
+ * remoteFilePrefix = undefined // will do all operations thorugh Local Node.fs
+ */
+export class LocalAndRemoteFsUtils implements IFsUtils {
+  private constructor(
+    private readonly remoteFilePrefix: string,
+    private readonly localFsUtils: IFsUtils,
+    private readonly remoteFsUtils: IFsUtils,
+  ) {}
+
+  public static create(
+    remoteFilePrefix: string | undefined,
+    fsPromises: FsPromises,
+    dap: Dap.Api,
+  ): IFsUtils {
+    const localFsUtils = new LocalFsUtils(fsPromises);
+    if (remoteFilePrefix !== undefined) {
+      return new this(remoteFilePrefix, localFsUtils, new RemoteFsThroughDapUtils(dap));
+    } else {
+      return localFsUtils;
+    }
+  }
+
+  public async exists(path: string): Promise<boolean> {
+    return (this.shouldUseRemoteFileSystem(path) ? this.remoteFsUtils : this.localFsUtils).exists(
+      path,
+    );
+  }
+
+  public shouldUseRemoteFileSystem(path: string) {
+    return path.startsWith(this.remoteFilePrefix);
   }
 }

@@ -11,7 +11,7 @@ import { EnvironmentVars } from '../../common/environmentVars';
 import { INodeLaunchConfiguration } from '../../configuration';
 import { NodeConfigurationResolver } from '../../ui/configuration/nodeDebugConfigurationResolver';
 import { createFileTree, testFixturesDir } from '../test';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 import { promises as fsPromises } from 'fs';
 
 describe('NodeDebugConfigurationProvider', () => {
@@ -28,7 +28,7 @@ describe('NodeDebugConfigurationProvider', () => {
     provider = new NodeConfigurationResolver(
       { logPath: testFixturesDir } as any,
       nvmResolver,
-      new FsUtils(fsPromises),
+      new LocalFsUtils(fsPromises),
     );
     EnvironmentVars.platform = 'linux';
   });

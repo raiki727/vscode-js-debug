@@ -7,7 +7,7 @@ import { basename, extname, resolve } from 'path';
 import { IBreakpointsPredictor } from '../../adapter/breakpointPredictor';
 import Cdp from '../../cdp/api';
 import { DebugType } from '../../common/contributionUtils';
-import { readfile, FsUtils } from '../../common/fsUtils';
+import { readfile, LocalFsUtils } from '../../common/fsUtils';
 import { ILogger, LogTag } from '../../common/logging';
 import { fixDriveLetterAndSlashes } from '../../common/pathUtils';
 import { delay } from '../../common/promiseUtil';
@@ -35,7 +35,7 @@ import { FSUtils } from '../../ioc-extras';
  * is explicitly provided, it grabs that, otherwise it looks for the first
  * existent path within the launch arguments.
  */
-const tryGetProgramFromArgs = async (fsUtils: FsUtils, config: INodeLaunchConfiguration) => {
+const tryGetProgramFromArgs = async (fsUtils: LocalFsUtils, config: INodeLaunchConfiguration) => {
   if (typeof config.stopOnEntry === 'string') {
     return resolve(config.cwd, config.stopOnEntry);
   }
@@ -69,7 +69,7 @@ export class NodeLauncher extends NodeLauncherBase<INodeLaunchConfiguration> {
     @inject(IBreakpointsPredictor) private readonly bpPredictor: IBreakpointsPredictor,
     @multiInject(IProgramLauncher) private readonly launchers: ReadonlyArray<IProgramLauncher>,
     @inject(RestartPolicyFactory) private readonly restarters: RestartPolicyFactory,
-    @inject(FSUtils) fsUtils: FsUtils,
+    @inject(FSUtils) fsUtils: LocalFsUtils,
   ) {
     super(pathProvider, logger, fsUtils);
   }

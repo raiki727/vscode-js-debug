@@ -21,7 +21,7 @@ import { IRunData } from './nodeLauncherBase';
 import { IProgram, StubProgram, WatchDogProgram } from './program';
 import { IRestartPolicy, RestartPolicyFactory } from './restartPolicy';
 import { WatchDog } from './watchdogSpawn';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 import { FSUtils } from '../../ioc-extras';
 
 const localize = nls.loadMessageBundle();
@@ -36,7 +36,7 @@ const localize = nls.loadMessageBundle();
 @injectable()
 export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
   constructor(
-    @inject(FSUtils) fsUtils: FsUtils,
+    @inject(FSUtils) fsUtils: LocalFsUtils,
     @inject(INodeBinaryProvider) pathProvider: NodeBinaryProvider,
     @inject(ILogger) logger: ILogger,
     private readonly restarters = new RestartPolicyFactory(),

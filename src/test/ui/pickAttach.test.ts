@@ -17,7 +17,7 @@ import * as path from 'path';
 import { tmpdir } from 'os';
 import del from 'del';
 import { forceForwardSlashes } from '../../common/pathUtils';
-import { FsUtils } from '../../common/fsUtils';
+import { LocalFsUtils } from '../../common/fsUtils';
 import { promises as fsPromises } from 'fs';
 
 describe('pick and attach', () => {
@@ -47,7 +47,7 @@ describe('pick and attach', () => {
 
       child = spawn('node', ['foo.js'], { cwd: testDir });
       const config = { ...nodeAttachConfigDefaults, processId: `${child.pid}:1234` };
-      await resolveProcessId(new FsUtils(fsPromises), config, true);
+      await resolveProcessId(new LocalFsUtils(fsPromises), config, true);
       expect(removePrivatePrefix(config.cwd!)).to.equal(testDir);
     });
 
@@ -59,7 +59,7 @@ describe('pick and attach', () => {
 
       child = spawn('node', ['foo.js'], { cwd: path.join(testDir, 'nested') });
       const config = { ...nodeAttachConfigDefaults, processId: `${child.pid}:1234` };
-      await resolveProcessId(new FsUtils(fsPromises), config, true);
+      await resolveProcessId(new LocalFsUtils(fsPromises), config, true);
       expect(removePrivatePrefix(config.cwd!)).to.equal(testDir);
     });
 
@@ -78,7 +78,7 @@ describe('pick and attach', () => {
 
       child = spawn('node', ['foo.js'], { cwd: path.join(testDir, 'nested') });
       const config = { ...nodeAttachConfigDefaults, processId: `${child.pid}:1234` };
-      await resolveProcessId(new FsUtils(fsPromises), config, true);
+      await resolveProcessId(new LocalFsUtils(fsPromises), config, true);
       expect(removePrivatePrefix(config.cwd!)).to.equal(path.join(testDir, 'nested'));
     });
   }
