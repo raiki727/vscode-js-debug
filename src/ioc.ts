@@ -277,7 +277,11 @@ export const createGlobalContainer = (options: {
   return container;
 };
 
-export const provideLaunchParams = (container: Container, params: AnyLaunchConfiguration, dap: Dap.Api) => {
+export const provideLaunchParams = (
+  container: Container,
+  params: AnyLaunchConfiguration,
+  dap: Dap.Api,
+) => {
   container.bind(AnyLaunchConfiguration).toConstantValue(params);
 
   container.bind(SourcePathResolverFactory).toSelf().inSingletonScope();
@@ -289,7 +293,5 @@ export const provideLaunchParams = (container: Container, params: AnyLaunchConfi
 
   container
     .bind(FSUtils)
-    .toConstantValue(
-      LocalAndRemoteFsUtils.create(params.__remoteFilePrefix, fsPromises, dap),
-    );
+    .toConstantValue(LocalAndRemoteFsUtils.create(params.__remoteFilePrefix, fsPromises, dap));
 };

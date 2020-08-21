@@ -93,7 +93,7 @@ export interface IFsUtils {
 }
 
 export class LocalFsUtils implements IFsUtils {
-  public constructor(private readonly fs: FsPromises) { }
+  public constructor(private readonly fs: FsPromises) {}
 
   public async exists(path: string): Promise<boolean> {
     // Check if the file exists in the current directory.
@@ -107,7 +107,7 @@ export class LocalFsUtils implements IFsUtils {
 }
 
 export class RemoteFsThroughDapUtils implements IFsUtils {
-  public constructor(private readonly dap: Dap.Api) { }
+  public constructor(private readonly dap: Dap.Api) {}
 
   public async exists(path: string): Promise<boolean> {
     try {
@@ -131,7 +131,7 @@ export class LocalAndRemoteFsUtils implements IFsUtils {
     private readonly remoteFilePrefix: string,
     private readonly localFsUtils: IFsUtils,
     private readonly remoteFsUtils: IFsUtils,
-  ) { }
+  ) {}
 
   public static create(
     remoteFilePrefix: string | undefined,

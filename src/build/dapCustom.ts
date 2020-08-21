@@ -712,8 +712,8 @@ const dapCustom: JSONSchema4 = {
                   type: 'boolean',
                   description: 'Does the file exist on the remote file system.',
                 },
-              }
-            }
+              },
+            },
           },
         },
       ],

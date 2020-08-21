@@ -44,7 +44,7 @@ export class NvmResolver implements INvmResolver {
     private readonly env = process.env,
     private readonly arch = process.arch,
     private readonly platform = process.platform,
-  ) { }
+  ) {}
 
   public async resolveNvmVersionPath(version: string) {
     let nvsHome = this.env[Vars.NvsHome];
