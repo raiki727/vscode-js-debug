@@ -112,7 +112,6 @@ export const createTargetContainer = (
   target: ITarget,
   dap: Dap.Api,
   cdp: Cdp.Api,
-  launchParams: AnyLaunchConfiguration,
 ) => {
   const container = new Container();
   container.parent = parent;
@@ -144,11 +143,6 @@ export const createTargetContainer = (
   container.bind(BasicCpuProfiler).toSelf();
   container.bind(IProfilerFactory).to(ProfilerFactory).inSingletonScope();
   container.bind(IProfileController).to(ProfileController).inSingletonScope();
-  container
-    .bind(FSUtils)
-    .toConstantValue(
-      LocalAndRemoteFsUtils.create(launchParams.__remoteFilePrefix, fsPromises, dap),
-    );
 
   return container;
 };
@@ -283,7 +277,7 @@ export const createGlobalContainer = (options: {
   return container;
 };
 
-export const provideLaunchParams = (container: Container, params: AnyLaunchConfiguration) => {
+export const provideLaunchParams = (container: Container, params: AnyLaunchConfiguration, dap: Dap.Api) => {
   container.bind(AnyLaunchConfiguration).toConstantValue(params);
 
   container.bind(SourcePathResolverFactory).toSelf().inSingletonScope();
@@ -292,4 +286,10 @@ export const provideLaunchParams = (container: Container, params: AnyLaunchConfi
     .bind(ISourcePathResolver)
     .toDynamicValue(ctx => ctx.container.get(SourcePathResolverFactory).create(params))
     .inSingletonScope();
+
+  container
+    .bind(FSUtils)
+    .toConstantValue(
+      LocalAndRemoteFsUtils.create(params.__remoteFilePrefix, fsPromises, dap),
+    );
 };

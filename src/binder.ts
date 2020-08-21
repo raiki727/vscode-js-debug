@@ -212,7 +212,7 @@ export class Binder implements IDisposable {
   private async _boot(params: AnyLaunchConfiguration, dap: Dap.Api) {
     warnNightly(dap);
     this.reportBootTelemetry(params);
-    provideLaunchParams(this._rootServices, params);
+    provideLaunchParams(this._rootServices, params, dap);
     this._rootServices.get<ILogger>(ILogger).setup(resolveLoggerOptions(dap, params.trace));
 
     const cts =

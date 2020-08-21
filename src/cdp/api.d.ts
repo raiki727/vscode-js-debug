@@ -13047,6 +13047,13 @@ export namespace Cdp {
     ): Promise<Network.SetUserAgentOverrideResult | undefined>;
 
     /**
+     * Returns information about the COEP/COOP isolation status.
+     */
+    getSecurityIsolationStatus(
+      params: Network.GetSecurityIsolationStatusParams,
+    ): Promise<Network.GetSecurityIsolationStatusResult | undefined>;
+
+    /**
      * Fired when data chunk was received over the network.
      */
     on(event: 'dataReceived', listener: (event: Network.DataReceivedEvent) => void): IDisposable;
@@ -13818,6 +13825,23 @@ export namespace Cdp {
      * Return value of the 'Network.setUserAgentOverride' method.
      */
     export interface SetUserAgentOverrideResult {}
+
+    /**
+     * Parameters of the 'Network.getSecurityIsolationStatus' method.
+     */
+    export interface GetSecurityIsolationStatusParams {
+      /**
+       * If no frameId is provided, the status of the target is provided.
+       */
+      frameId?: Page.FrameId;
+    }
+
+    /**
+     * Return value of the 'Network.getSecurityIsolationStatus' method.
+     */
+    export interface GetSecurityIsolationStatusResult {
+      status: SecurityIsolationStatus;
+    }
 
     /**
      * Parameters of the 'Network.dataReceived' event.
@@ -15390,6 +15414,28 @@ export namespace Cdp {
        * Errors occurred while handling the signed exchagne.
        */
       errors?: SignedExchangeError[];
+    }
+
+    export type CrossOriginOpenerPolicyValue =
+      | 'SameOrigin'
+      | 'SameOriginAllowPopups'
+      | 'UnsafeNone'
+      | 'SameOriginPlusCoep';
+
+    export interface CrossOriginOpenerPolicyStatus {
+      value: CrossOriginOpenerPolicyValue;
+    }
+
+    export type CrossOriginEmbedderPolicyValue = 'None' | 'RequireCorp';
+
+    export interface CrossOriginEmbedderPolicyStatus {
+      value: CrossOriginEmbedderPolicyValue;
+    }
+
+    export interface SecurityIsolationStatus {
+      coop: CrossOriginOpenerPolicyStatus;
+
+      coep: CrossOriginEmbedderPolicyStatus;
     }
   }
 
@@ -18347,6 +18393,23 @@ export namespace Cdp {
     export type AdFrameType = 'none' | 'child' | 'root';
 
     /**
+     * Indicates whether the frame is a secure context and why it is the case.
+     */
+    export type SecureContextType =
+      | 'Secure'
+      | 'SecureLocalhost'
+      | 'InsecureScheme'
+      | 'InsecureAncestor';
+
+    /**
+     * Indicates whether the frame is cross-origin isolated and why it is the case.
+     */
+    export type CrossOriginIsolatedContextType =
+      | 'Isolated'
+      | 'NotIsolated'
+      | 'NotIsolatedFeatureDisabled';
+
+    /**
      * Information about the Frame on the page.
      */
     export interface Frame {
@@ -18407,6 +18470,16 @@ export namespace Cdp {
        * Indicates whether this frame was tagged as an ad.
        */
       adFrameType?: AdFrameType;
+
+      /**
+       * Indicates whether the main document is a secure context and explains why that is the case.
+       */
+      secureContextType: SecureContextType;
+
+      /**
+       * Indicates whether this is a cross origin isolated context.
+       */
+      crossOriginIsolatedContextType: CrossOriginIsolatedContextType;
     }
 
     /**
