@@ -4,6 +4,7 @@
 
 import { injectable, inject } from 'inversify';
 import * as nls from 'vscode-nls';
+import { getSourceSuffix } from '../../adapter/templates';
 import Cdp from '../../cdp/api';
 import { CancellationTokenSource } from '../../common/cancellation';
 import { DebugType } from '../../common/contributionUtils';
@@ -222,9 +223,10 @@ export class NodeAttacher extends NodeAttacherBase<INodeAttachConfiguration> {
       const result = await cdp.Runtime.evaluate({
         contextId: 1,
         returnByValue: true,
-        expression: `typeof process === 'undefined' ? 'process not defined' : Object.assign(process.env, ${JSON.stringify(
-          vars.defined(),
-        )})`,
+        expression:
+          `typeof process === 'undefined' ? 'process not defined' : Object.assign(process.env, ${JSON.stringify(
+            vars.defined(),
+          )})` + getSourceSuffix(),
       });
 
       if (!result) {

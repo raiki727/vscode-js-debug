@@ -30,6 +30,7 @@ import {
   IUiLocation,
   rawToUiOffset,
   Source,
+  SourceConstants,
   SourceContainer,
 } from './sources';
 import { StackFrame, StackTrace } from './stackTrace';
@@ -425,6 +426,7 @@ export class Thread implements IVariableStoreDelegate {
             ...params,
             contextId: this._selectedContext ? this._selectedContext.description.id : undefined,
           },
+      /* isInternalScript= */ false,
     );
 
     // Report result for repl immediately so that the user could see the expression they entered.
@@ -1096,6 +1098,11 @@ export class Thread implements IVariableStoreDelegate {
   }
 
   private _onScriptParsed(event: Cdp.Debugger.ScriptParsedEvent) {
+    if (event.url.endsWith(SourceConstants.InternalExtension)) {
+      // The customer doesn't care about the internal cdp files, so skip this event
+      return;
+    }
+
     if (this._sourceContainer.scriptsById.has(event.scriptId)) {
       return;
     }
