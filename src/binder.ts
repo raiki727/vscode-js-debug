@@ -121,11 +121,6 @@ export class Binder implements IDisposable {
         ),
       );
       dap.on('launch', params => {
-        const remoteFilePrefix = (params as { __remoteFilePrefix: string | undefined })
-          .__remoteFilePrefix;
-        this._rootServices
-          .bind(FSUtils)
-          .toConstantValue(LocalAndRemoteFsUtils.create(remoteFilePrefix, fsPromises, dap));
         return this._boot(
           applyDefaults(
             params as AnyResolvingConfiguration,
