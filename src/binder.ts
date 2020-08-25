@@ -4,7 +4,6 @@
 
 import { Container } from 'inversify';
 import * as os from 'os';
-import { promises as fsPromises } from 'fs';
 import { CancellationToken } from 'vscode';
 import * as nls from 'vscode-nls';
 import { getAsyncStackPolicy, IAsyncStackPolicy } from './adapter/asyncStackPolicy';
@@ -28,7 +27,7 @@ import Dap from './dap/api';
 import DapConnection from './dap/connection';
 import { ProtocolError } from './dap/protocolError';
 import { createTargetContainer, provideLaunchParams } from './ioc';
-import { disposeContainer, IInitializeParams, ExtensionLocation, FSUtils } from './ioc-extras';
+import { disposeContainer, IInitializeParams, ExtensionLocation } from './ioc-extras';
 import { ITargetOrigin } from './targets/targetOrigin';
 import { ILauncher, ILaunchResult, ITarget } from './targets/targets';
 import { ITelemetryReporter } from './telemetry/telemetryReporter';
@@ -36,7 +35,6 @@ import {
   filterErrorsReportedToTelemetry,
   installUnhandledErrorReporter,
 } from './telemetry/unhandledErrorReporter';
-import { LocalAndRemoteFsUtils } from './common/fsUtils';
 
 const localize = nls.loadMessageBundle();
 
@@ -374,7 +372,7 @@ export class Binder implements IDisposable {
     const parentTarget = target.parent();
     const parentContainer =
       (parentTarget && this._serviceTree.get(parentTarget)) || this._rootServices;
-    const container = createTargetContainer(parentContainer, target, dap, cdp, launchParams);
+    const container = createTargetContainer(parentContainer, target, dap, cdp);
     connection.attachTelemetry(container.get(ITelemetryReporter));
     this._serviceTree.set(target, parentContainer);
 
