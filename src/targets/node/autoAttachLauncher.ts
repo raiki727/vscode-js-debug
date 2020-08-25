@@ -5,10 +5,17 @@
 import { inject, injectable } from 'inversify';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { Configuration, DebugType, readConfig } from '../../common/contributionUtils';
+import {
+  AutoAttachMode,
+  Configuration,
+  DebugType,
+  readConfig,
+} from '../../common/contributionUtils';
 import { ILogger } from '../../common/logging';
 import { forceForwardSlashes } from '../../common/pathUtils';
 import { AnyLaunchConfiguration, ITerminalLaunchConfiguration } from '../../configuration';
+import { ErrorCodes } from '../../dap/errors';
+import { ProtocolError } from '../../dap/protocolError';
 import { ExtensionContext, FS, FsPromises, FSUtils } from '../../ioc-extras';
 import { ITarget } from '../targets';
 import {
@@ -26,7 +33,8 @@ import {
 import { IProcessTelemetry, IRunData, NodeLauncherBase } from './nodeLauncherBase';
 import { StubProgram } from './program';
 import { ITerminalLauncherLike } from './terminalNodeLauncher';
-import { bootloaderDefaultPath, WatchDog } from './watchdogSpawn';
+import { bootloaderDefaultPath, watchdogPath } from './bundlePaths';
+import { WatchDog } from './watchdogSpawn';
 import { LocalFsUtils } from '../../common/fsUtils';
 
 /**
@@ -101,15 +109,27 @@ export class AutoAttachLauncher extends NodeLauncherBase<ITerminalLaunchConfigur
     variables: vscode.EnvironmentVariableCollection,
     runData: IRunData<ITerminalLaunchConfiguration>,
   ) {
-    const debugVars = await this.resolveEnvironment(
-      runData,
-      await this.resolveNodePath(runData.params),
-      {
-        deferredMode: true,
-        inspectorIpc: runData.serverAddress + '.deferred',
-        autoAttachMode: readConfig(vscode.workspace, Configuration.AutoAttachMode),
-      },
-    );
+    let binary: NodeBinary;
+    try {
+      binary = await this.resolveNodePath(runData.params);
+    } catch (e) {
+      if (e instanceof ProtocolError && e.cause.id === ErrorCodes.CannotFindNodeBinary) {
+        binary = new NodeBinary('node', undefined);
+      } else {
+        throw e;
+      }
+    }
+
+    const autoAttachMode = readConfig(vscode.workspace, Configuration.AutoAttachMode);
+    const debugVars = await this.resolveEnvironment(runData, binary, {
+      deferredMode: true,
+      inspectorIpc: runData.serverAddress + '.deferred',
+      autoAttachMode,
+      aaPatterns:
+        autoAttachMode === AutoAttachMode.Smart
+          ? readConfig(vscode.workspace, Configuration.AutoAttachSmartPatterns)
+          : undefined,
+    });
 
     const bootloaderEnv = (debugVars.defined() as unknown) as IBootloaderEnvironment;
 
@@ -128,9 +148,9 @@ export class AutoAttachLauncher extends NodeLauncherBase<ITerminalLaunchConfigur
    */
   protected async getBootloaderFile(cwd: string | undefined, binary: NodeBinary) {
     // Use the local bootloader in development mode for easier iteration
-    if (this.extensionContext.extensionMode === vscode.ExtensionMode.Development) {
-      return super.getBootloaderFile(cwd, binary);
-    }
+    // if (this.extensionContext.extensionMode === vscode.ExtensionMode.Development) {
+    //   return super.getBootloaderFile(cwd, binary);
+    // }
 
     const storagePath =
       this.extensionContext.storagePath || this.extensionContext.globalStoragePath;
@@ -157,7 +177,10 @@ export class AutoAttachLauncher extends NodeLauncherBase<ITerminalLaunchConfigur
       // already exists, most likely
     }
 
-    await this.fs.copyFile(bootloaderDefaultPath, bootloaderPath);
+    await Promise.all([
+      this.fs.copyFile(bootloaderDefaultPath, bootloaderPath),
+      this.fs.copyFile(watchdogPath, path.join(storagePath, 'watchdog.bundle.js')),
+    ]);
 
     const p = forceForwardSlashes(bootloaderPath);
     return { interpolatedPath: p.includes(' ') ? `"${p}"` : p, dispose: () => undefined };

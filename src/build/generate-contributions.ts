@@ -11,6 +11,7 @@ import {
   DebugType,
   IConfigurationTypes,
 } from '../common/contributionUtils';
+import { knownToolToken } from '../common/knownTools';
 import { sortKeys, walkObject } from '../common/objUtils';
 import {
   AnyLaunchConfiguration,
@@ -1075,7 +1076,7 @@ const configurationSchema: ConfigurationAttributes<IConfigurationTypes> = {
     markdownDescription: refString('configuration.autoExpandGetters'),
   },
   [Configuration.AutoAttachMode]: {
-    type: 'boolean',
+    type: 'string',
     default: AutoAttachMode.Smart,
     enum: [AutoAttachMode.Always, AutoAttachMode.Smart, AutoAttachMode.Explicit],
     enumDescriptions: [
@@ -1084,6 +1085,14 @@ const configurationSchema: ConfigurationAttributes<IConfigurationTypes> = {
       refString('configuration.autoAttachMode.explicit'),
     ],
     markdownDescription: refString('configuration.autoAttachMode'),
+  },
+  [Configuration.AutoAttachSmartPatterns]: {
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+    default: ['!**/node_modules/**', `**/${knownToolToken}/**`],
+    markdownDescription: refString('configuration.autoAttachSmartPatterns'),
   },
 };
 

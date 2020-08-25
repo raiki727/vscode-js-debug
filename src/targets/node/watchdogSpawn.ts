@@ -2,9 +2,7 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import { spawn } from 'child_process';
 import * as net from 'net';
-import { join } from 'path';
 import Cdp from '../../cdp/api';
 import { RawPipeTransport } from '../../cdp/rawPipeTransport';
 import { ITransport } from '../../cdp/transport';
@@ -54,9 +52,6 @@ export interface IWatchdogInfo {
   ppid?: string;
 }
 
-export const watchdogPath = join(__dirname, 'watchdog.bundle.js');
-export const bootloaderDefaultPath = join(__dirname, 'bootloader.bundle.js');
-
 const enum Method {
   AttachToTarget = 'Target.attachToTarget',
   DetachFromTarget = 'Target.detachFromTarget',
@@ -66,6 +61,7 @@ export class WatchDog implements IDisposable {
   private readonly onEndEmitter = new EventEmitter<IStopMetadata>();
   private target?: WebSocketTransport;
   private gracefulExit = false;
+  private targetAlive = false;
   private readonly targetInfo: Cdp.Target.TargetInfo = {
     targetId: this.info.pid || '0',
     type: this.info.waitForDebugger ? 'waitingForDebugger' : '',
@@ -75,6 +71,13 @@ export class WatchDog implements IDisposable {
     attached: true,
     canAccessOpener: false,
   };
+
+  /**
+   * Gets whether the attached process is still running.
+   */
+  public get isTargetAlive() {
+    return this.targetAlive;
+  }
 
   /**
    * Event that fires when the watchdog stops.
@@ -175,7 +178,7 @@ export class WatchDog implements IDisposable {
     const target = await WebSocketTransport.create(this.info.inspectorURL, NeverCancelled);
     target.onMessage(([data]) => this.server.send(data));
     target.onEnd(() => {
-      if (target)
+      if (target) {
         // Could be due us closing.
         this.server.send(
           JSON.stringify({
@@ -183,6 +186,9 @@ export class WatchDog implements IDisposable {
             params: { targetId: this.targetInfo.targetId, sessionId: this.targetInfo.targetId },
           }),
         );
+      }
+
+      this.targetAlive = false;
       this.server.dispose();
     });
 
@@ -195,18 +201,4 @@ export class WatchDog implements IDisposable {
       this.target = undefined;
     }
   }
-}
-
-/**
- * Spawns a watchdog attached to the given process.
- */
-export function spawnWatchdog(execPath: string, watchdogInfo: IWatchdogInfo) {
-  const p = spawn(execPath, [watchdogPath], {
-    env: { NODE_INSPECTOR_INFO: JSON.stringify(watchdogInfo) },
-    stdio: 'ignore',
-    detached: true,
-  });
-  p.unref();
-
-  return p;
 }
