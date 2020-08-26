@@ -7,7 +7,7 @@ import * as path from 'path';
 import { stub, SinonStub } from 'sinon';
 import { expect } from 'chai';
 import { BrowserSourcePathResolver } from '../../targets/browser/browserPathResolver';
-import { fsModule, LocalFsUtils } from '../../common/fsUtils';
+import { fsModule, LocalFsUtils, IFsUtils } from '../../common/fsUtils';
 import { defaultSourceMapPathOverrides } from '../../configuration';
 import { Logger } from '../../common/logging/logger';
 import { testFixturesDir } from '../test';
@@ -128,6 +128,19 @@ describe('browserPathResolver.urlToAbsolutePath', () => {
     });
   });
 
+  class FakeLocalFsUtils implements IFsUtils {
+    exists(path: string): Promise<boolean> {
+      switch (path) {
+        case 'c:\\Users\\user\\Source\\Repos\\Angular Project\\ClientApp\\src\\app\\app.component.html':
+          return Promise.resolve(true);
+        case 'c:\\Users\\user\\Source\\Repos\\Angular Project\\wwwroot\\src\\app\\app.component.html':
+          return Promise.resolve(false);
+        default:
+          throw Error(`Unknown path ${path}`);
+      }
+    }
+  }
+
   describe('absolutePathToUrl', () => {
     const resolver = new BrowserSourcePathResolver(
       testVueMapper,
@@ -172,7 +185,7 @@ describe('browserPathResolver.urlToAbsolutePath', () => {
 
       const resolver = new BrowserSourcePathResolver(
         testVueMapper,
-        new LocalFsUtils(fsPromises),
+        new FakeLocalFsUtils(),
         {
           pathMapping: { '/': webRoot },
           clientID: client,

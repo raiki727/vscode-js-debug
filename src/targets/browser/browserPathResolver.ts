@@ -23,7 +23,7 @@ import {
 import { injectable, inject } from 'inversify';
 import { IVueFileMapper, VueHandling } from '../../adapter/vueFileMapper';
 import { ILogger } from '../../common/logging';
-import { LocalFsUtils } from '../../common/fsUtils';
+import { IFsUtils } from '../../common/fsUtils';
 import { FSUtils } from '../../ioc-extras';
 
 interface IOptions extends ISourcePathResolverOptions {
@@ -36,7 +36,7 @@ interface IOptions extends ISourcePathResolverOptions {
 export class BrowserSourcePathResolver extends SourcePathResolverBase<IOptions> {
   constructor(
     @inject(IVueFileMapper) private readonly vueMapper: IVueFileMapper,
-    @inject(FSUtils) private readonly fsUtils: LocalFsUtils,
+    @inject(FSUtils) private readonly fsUtils: IFsUtils,
     options: IOptions,
     logger: ILogger,
   ) {
