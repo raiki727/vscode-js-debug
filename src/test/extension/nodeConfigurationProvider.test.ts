@@ -10,9 +10,16 @@ import { DebugType } from '../../common/contributionUtils';
 import { EnvironmentVars } from '../../common/environmentVars';
 import { INodeLaunchConfiguration } from '../../configuration';
 import { NodeConfigurationResolver } from '../../ui/configuration/nodeDebugConfigurationResolver';
+<<<<<<< HEAD
 import { createFileTree, testFixturesDir } from '../test';
 import { LocalFsUtils } from '../../common/fsUtils';
 import { promises as fsPromises } from 'fs';
+||||||| 2eadab0
+import { createFileTree, testFixturesDir } from '../test';
+=======
+import { testFixturesDir } from '../test';
+import { createFileTree } from '../createFileTree';
+>>>>>>> origin/master
 
 describe('NodeDebugConfigurationProvider', () => {
   let provider: NodeConfigurationResolver;

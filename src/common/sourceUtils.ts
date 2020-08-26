@@ -7,9 +7,9 @@ import * as sourceMap from 'source-map';
 import * as ts from 'typescript';
 import { SourceMap } from './sourceMaps/sourceMap';
 import { LineColumn } from '../adapter/breakpoints/breakpointBase';
-import { verifyBytes, verifyFile } from './hash';
-import { promises as fsPromises } from 'fs';
 import { LocalFsUtils } from './fsUtils';
+import { Hasher } from './hash';
+import { promises as fsPromises } from 'fs';
 
 export async function prettyPrintAsSourceMap(
   fileName: string,
@@ -251,6 +251,8 @@ export function parseSourceMappingUrl(content: string): string | undefined {
   return sourceMapUrl;
 }
 
+const hasher = new Hasher();
+
 export async function checkContentHash(
   absolutePath: string,
   contentHash?: string,
@@ -267,8 +269,8 @@ export async function checkContentHash(
 
   const result =
     typeof contentOverride === 'string'
-      ? await verifyBytes(contentOverride, contentHash, true)
-      : await verifyFile(absolutePath, contentHash, true);
+      ? await hasher.verifyBytes(contentOverride, contentHash, true)
+      : await hasher.verifyFile(absolutePath, contentHash, true);
 
   return result ? absolutePath : undefined;
 }
