@@ -298,9 +298,9 @@ export function createLaunchConfigFromContext(
       useSourceMaps = editor.document.languageId !== 'javascript';
       program = folder
         ? path.join(
-          '${workspaceFolder}',
-          path.relative(folder.uri.fsPath, editor.document.uri.fsPath),
-        )
+            '${workspaceFolder}',
+            path.relative(folder.uri.fsPath, editor.document.uri.fsPath),
+          )
         : editor.document.uri.fsPath;
     }
   }
