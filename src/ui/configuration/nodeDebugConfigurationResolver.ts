@@ -122,7 +122,7 @@ export class NodeConfigurationResolver extends BaseConfigurationResolver<AnyNode
 
       // assign a random debug port if requested, otherwise remove manual
       // --inspect-brk flags, which are no longer needed and interfere
-      if (config.attachSimplePort === null) {
+      if (config.attachSimplePort === null || config.attachSimplePort === undefined) {
         fixInspectFlags(config);
       } else {
         if (config.attachSimplePort === 0) {
@@ -298,9 +298,9 @@ export function createLaunchConfigFromContext(
       useSourceMaps = editor.document.languageId !== 'javascript';
       program = folder
         ? path.join(
-            '${workspaceFolder}',
-            path.relative(folder.uri.fsPath, editor.document.uri.fsPath),
-          )
+          '${workspaceFolder}',
+          path.relative(folder.uri.fsPath, editor.document.uri.fsPath),
+        )
         : editor.document.uri.fsPath;
     }
   }
