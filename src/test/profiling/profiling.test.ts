@@ -14,7 +14,7 @@ import { DebugType, runCommand, Commands } from '../../common/contributionUtils'
 import { EventEmitter } from '../../common/events';
 import { DisposableList } from '../../common/disposable';
 
-describe.only('profiling', () => {
+describe('profiling', () => {
   const cwd = join(testWorkspace, 'simpleNode');
   const script = join(cwd, 'profilePlayground.js');
   let createQuickPick: SinonSpy;
