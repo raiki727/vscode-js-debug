@@ -190,6 +190,12 @@ export interface IBaseConfiguration extends IMandatedConfiguration {
    * If a file starts with this prefix, we'll consider it a remote file, and perform it's operation thorugh DAP requests
    */
   __remoteFilePrefix: string | undefined;
+
+  /**
+   * Function used to generate the description of the objects shown in the debugger
+   * e.g.: "function (defaultDescription) { return this.toString(); }"
+   */
+  customDescriptionGenerator?: string;
 }
 
 export interface IExtensionHostBaseConfiguration extends INodeBaseConfiguration {
@@ -773,6 +779,7 @@ export const baseDefaults: IBaseConfiguration = {
   __workspaceFolder: '',
   __autoExpandGetters: false,
   __remoteFilePrefix: undefined,
+  customDescriptionGenerator: undefined,
 };
 
 const nodeBaseDefaults: INodeBaseConfiguration = {
